@@ -37,16 +37,16 @@ def shuffle():
 	reader=csv.reader(open(os.path.join(path_to_data, "x.txt"),"rt", encoding='ascii'),delimiter=' ')
 	# read in the attributes file
 	for row in reader:
-	        # attributes in columns 0-561
-	        attribute_list.append(list(row[i] for i in (range(0,561))))
-	        # store in the temp list
+		# attributes in columns 0-561
+		attribute_list.append(list(row[i] for i in (range(0,561))))
+		# store in the temp list
 
 	reader=csv.reader(open(os.path.join(path_to_data, "y.txt"),"rt", encoding='ascii'),delimiter=' ')
 	# read in the labels file
 	for row in reader:
-	        # attributes in column 1
-	        label_list.append(row[0])
-	        # store in the temp list
+		# attributes in column 1
+		label_list.append(row[0])
+		# store in the temp list
 
 	attributes=np.array(attribute_list).astype(np.float32)
 	labels=np.array(label_list).astype(np.float32)
@@ -140,6 +140,77 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
 #####################################################################
 
+def SVM(training_labels, training_attributes, test_labels, test_attributes):
+
+	use_svm_autotrain = False;
+
+	############ Perform Training -- SVM
+
+	# define SVM object
+
+	svm = cv2.ml.SVM_create();
+
+	# set kernel
+	# choices : # SVM_LINEAR / SVM_RBF / SVM_POLY / SVM_SIGMOID / SVM_CHI2 / SVM_INTER
+
+	svm.setKernel(cv2.ml.SVM_LINEAR);
+
+	# set parameters (some specific to certain kernels)
+
+	svm.setC(1.0); # penalty constant on margin optimization
+	svm.setType(cv2.ml.SVM_C_SVC); # multiple class (2 or more) classification
+	svm.setGamma(0.5); # used for SVM_RBF kernel only, otherwise has no effect
+	svm.setDegree(3);  # used for SVM_POLY kernel only, otherwise has no effect
+
+	# set the relative weights importance of each class for use with penalty term
+
+	svm.setClassWeights(np.float32([1,1,1,1,1,1,1,1,1,1,1,1]));
+
+	# define and train svm object
+
+	if (use_svm_autotrain):
+
+		# use automatic grid search across the parameter space of kernel specified above
+		# (ignoring kernel parameters set previously)
+
+		# if it is available : see https://github.com/opencv/opencv/issues/7224
+
+		svm.trainAuto(cv2.ml.TrainData_create(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int)), kFold=10);
+	else:
+
+		# use kernel specified above with kernel parameters set previously
+
+		svm.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int));
+
+	############ Perform Testing -- SVM
+
+	correct = 0 # handwritten digit correctly identified
+	incorrect = 0   # handwritten digit wrongly identified
+
+	# for each testing example
+
+	for i in range(0, len(test_attributes[:,0])):
+
+		# (to get around some kind of OpenCV python interface bug, vertically stack the
+		#  example with a second row of zeros of the same size and type which is ignored).
+
+		sample = np.vstack((test_attributes[i,:],
+		np.zeros(len(test_attributes[i,:])).astype(np.float32)));
+
+		# perform SVM prediction (i.e. classification)
+
+		_, result = svm.predict(sample, cv2.ml.ROW_SAMPLE);
+
+		if(test_labels[i] == result[0]):
+			correct += 1
+		else:
+			incorrect += 1
+
+	print("Correct: " + str(correct/len(test_attributes) * 100))
+	print("Incorrext: " + str(incorrect/len(test_attributes) * 100))
+	return correct/len(test_attributes) * 100
+
+#####################################################################
 
 # run the machine learning code here
 
@@ -154,23 +225,40 @@ for x in range(3,16):
 		total += kNN(training_labels, training_attributes, test_labels, test_attributes,x)
 	print("the total percentage: " + str(total / 10))
 """
-# k = 3 = 94.9695
-# k = 4 = 95.01
-# k = 5 = 95.207
-# k = 6 = 94.95
-# k = 7 = 94.99
-# k = 8 = 94.97
-# k = 9 = 95.03
-# k = 10 = 94.88
-# k = 11 = 94.92
-# k = 12 = 95.15
-# k = 13 = 94.83
-# k = 14 = 95.06
-# k = 15 = 95.10
+"""
+k = 3 = 94.9695
+k = 4 = 95.01
+k = 5 = 95.207
+k = 6 = 94.95
+k = 7 = 94.99
+k = 8 = 94.97
+k = 9 = 95.03
+k = 10 = 94.88
+k = 11 = 94.92
+k = 12 = 95.15
+k = 13 = 94.83
+k = 14 = 95.06
+k = 15 = 95.10
+"""
 
 # kNN with weighting
 
 # SVM
-
+counter = 0
+for x in range(0,10):
+	print("")
+	print("SVM round " + str(x + 1))
+	test_labels, test_attributes, training_labels, training_attributes = shuffle()
+	counter += SVM(training_labels, training_attributes, test_labels, test_attributes)
+print("Total Score: " + str(counter/10))
+"""
+setKernel = SVM_LINEAR
+setC = 1.0
+setType = SVM_C_SVC
+setGamma = 0.5
+setDegree = 3
+Unweighted
+SCORE = 96.09
+"""
 
 #####################################################################
