@@ -92,6 +92,7 @@ def shuffle():
 #####################################################################
 
 def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
+
 	############ Perform Training -- k-NN
 
 	# define kNN object
@@ -126,7 +127,7 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 		sample = np.vstack((test_attributes[i,:], np.zeros(len(test_attributes[i,:])).astype(np.float32)))
 		# formatting before running
 
-		_, results, neigh_respones, distances = knn.findNearest(sample, k = 3);
+		_, results, neigh_respones, distances = knn.findNearest(sample, k = K);
 		# run the test on the current thing
 
 		if(results[0] == test_labels[i]):
@@ -212,6 +213,105 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes):
 
 #####################################################################
 
+def kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, K):
+	
+	############ Perform Training -- k-NN
+
+	# define kNN object
+
+	knn = cv2.ml.KNearest_create();
+
+	# set to use BRUTE_FORCE neighbour search as KNEAREST_KDTREE seems to  break
+	# on this data set (may not for others - http://code.opencv.org/issues/2661)
+
+	knn.setAlgorithmType(cv2.ml.KNEAREST_BRUTE_FORCE);
+
+	# set default 3, can be changed at query time in predict() call
+
+	knn.setDefaultK(K);
+
+	# set up classification, turning off regression
+
+	knn.setIsClassifier(True);
+
+	# perform training of k-NN
+
+	knn.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels);
+
+	############ Perform Testing -- k-NN
+
+	correct = 0
+	incorrect = 0
+
+	for i in range(len(test_attributes)):
+		# iterate though every index of the test data
+
+		sample = np.vstack((test_attributes[i,:], np.zeros(len(test_attributes[i,:])).astype(np.float32)))
+		# formatting before running
+
+		_, results, neigh_respones, distances = knn.findNearest(sample, k = K);
+		# run the test on the current thing
+
+		################### The weighting bit
+
+		# print("responses")
+		# print(neigh_respones)
+		# the first is the group that each of the neighbors thinks this should be in
+		# print("distances")
+		# print(distances)
+		# the first is the distance from each of the neighbors
+
+		# Inverse Square Distance
+
+		if(True):
+
+			prediction = 0
+
+			weighted_labels = np.array([0,0,0,0,0,0,0,0,0,0,0,0]).astype(np.float32)
+
+			for x in range(len(neigh_respones[0])):
+				# iterate through each of the neghbors and their decisions and distances
+				# print(neigh_respones[0][x])
+				# print(distances[0][x])
+
+				current_inverse_square = 1/(distances[0][x] * distances[0][x])
+
+				weighted_labels[neigh_respones[0][x] - 1] += current_inverse_square
+
+			prediction = np.argmax(weighted_labels, axis=0) + 1
+
+		# Similarity
+
+		if(False):
+
+			prediction = 0
+
+			weighted_labels = np.array([0,0,0,0,0,0,0,0,0,0,0,0]).astype(np.float32)
+
+			for x in range(len(neigh_respones[0])):
+				# iterate through each of the neghbors and their decisions and distances
+				# print(neigh_respones[0][x])
+				# print(distances[0][x])
+
+				current_similarity = 1 - distances[0][x]
+
+				weighted_labels[neigh_respones[0][x] - 1] += current_similarity
+
+			prediction = np.argmax(weighted_labels, axis=0) + 1
+
+		################### End of the weighting bit
+
+		if(prediction == test_labels[i]):
+			correct += 1
+		else:
+			incorrect += 1
+
+	print("Correct: " + str(correct/len(test_attributes) * 100))
+	print("Incorrext: " + str(incorrect/len(test_attributes) * 100))
+	return (correct/len(test_attributes) * 100)
+
+#####################################################################
+
 # run the machine learning code here
 
 # kNN
@@ -225,8 +325,8 @@ for x in range(3,16):
 		total += kNN(training_labels, training_attributes, test_labels, test_attributes,x)
 	print("the total percentage: " + str(total / 10))
 """
-"""
-k = 3 = 94.9695
+""" MAY NEED TO RE-TEST!!!!!!!!!!!
+k = 3 = 94.97
 k = 4 = 95.01
 k = 5 = 95.207
 k = 6 = 94.95
@@ -243,7 +343,49 @@ k = 15 = 95.10
 
 # kNN with weighting
 
+for x in range(3,16):
+	print("")
+	print("kNN Round " + str(x))
+	total = 0
+	for y in range(0,10):
+		test_labels, test_attributes, training_labels, training_attributes = shuffle()
+		total += kNN_weighted(training_labels, training_attributes, test_labels, test_attributes,x)
+	print("the total percentage: " + str(total / 10))
+
+
+"""
+inverse
+k = 3 = 95.34
+k = 4 = 95.42
+k = 5 = 95.77
+k = 6 = 
+k = 7 = 
+k = 8 = 
+k = 9 = 
+k = 10 = 
+k = 11 = 
+k = 12 = 
+k = 13 = 
+k = 14 = 
+k = 15 = 
+similarity
+k = 3 = 
+k = 4 = 
+k = 5 = 
+k = 6 = 
+k = 7 = 
+k = 8 = 
+k = 9 = 
+k = 10 = 
+k = 11 = 
+k = 12 = 
+k = 13 = 
+k = 14 = 
+k = 15 = 
+"""
+
 # SVM
+"""
 counter = 0
 for x in range(0,10):
 	print("")
@@ -251,6 +393,7 @@ for x in range(0,10):
 	test_labels, test_attributes, training_labels, training_attributes = shuffle()
 	counter += SVM(training_labels, training_attributes, test_labels, test_attributes)
 print("Total Score: " + str(counter/10))
+"""
 """
 setKernel = SVM_LINEAR
 setC = 1.0
