@@ -90,6 +90,94 @@ def shuffle():
 	return test_labels, test_attributes, training_labels, training_attributes
 
 #####################################################################
+# reads in the files and splits them based on K folding
+# different sets of test data vs training data
+
+def k_folding():
+
+	########### Define classes
+
+	classes = {} # define mapping of classes
+	inv_classes = {v: k for k, v in classes.items()}
+
+	########### Load Data Set
+
+	path_to_data = "Dataset" 
+	# the file that the data is in
+
+	attribute_list = []
+	# the temp variable to store the attributes 
+	label_list = []
+	# the temp variable to store the labels
+
+	reader=csv.reader(open(os.path.join(path_to_data, "x.txt"),"rt", encoding='ascii'),delimiter=' ')
+	# read in the attributes file
+	for row in reader:
+		# attributes in columns 0-561
+		attribute_list.append(list(row[i] for i in (range(0,561))))
+		# store in the temp list
+
+	reader=csv.reader(open(os.path.join(path_to_data, "y.txt"),"rt", encoding='ascii'),delimiter=' ')
+	# read in the labels file
+	for row in reader:
+		# attributes in column 1
+		label_list.append(row[0])
+		# store in the temp list
+
+	attributes=np.array(attribute_list).astype(np.float32)
+	labels=np.array(label_list).astype(np.float32)
+	# put both in more perminant storage
+
+	###########  test output for sanity
+	"""
+	print(attributes)
+	print(len(attributes))
+	print(labels)
+	print(len(labels))
+	"""
+	#####################################################################
+
+	########### Split Dataset into test and training
+
+	# split the data into sub sets, choose one at random, return all others as training data and the chosen as test data
+
+	K = 10
+	# the number of K folds
+
+	together = list(zip(labels, attributes))
+	# zip together
+
+	y = int(len(together) / K)
+	# find the length of each subset
+
+	chunks = [together[x:x+100] for x in range(0, len(together), y)]
+	# store the chunks
+
+	results = []
+
+	for x in range(0, len(chunks)):
+		# iterate through all chunks
+
+		test_list = chunks[x]
+		# store the test chunk
+
+		training_list = []
+
+		for y in range(0,len(chunks)):
+			# iterate through all chunks
+
+			if(x != y):
+				# if the chunk isnt the test chunk
+
+				training_list.append(chunks[y])
+				# add the chunk to the training list
+
+		results.append([test_list,training_list])
+
+	return results
+	# return a list of length k each containing a list of [test_list, training_list]
+
+#####################################################################
 
 def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
@@ -315,6 +403,16 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 # run the machine learning code here
 
 # kNN
+
+results = k_folding()
+for x in range(len(results)):
+	testing_list = results[x][0]
+	training_list = results[x][1]
+
+	### this is broken !!!!!!
+
+	kNN(training_labels, training_attributes, test_labels, test_attributes,3)
+
 """
 for x in range(3,16):
 	print("")
@@ -342,17 +440,16 @@ k = 15 = 95.10
 """
 
 # kNN with weighting
-
+"""
 for x in range(3,16):
 	print("")
-	print("kNN Round " + str(x))
+	print("Weighted kNN Round " + str(x))
 	total = 0
 	for y in range(0,10):
 		test_labels, test_attributes, training_labels, training_attributes = shuffle()
 		total += kNN_weighted(training_labels, training_attributes, test_labels, test_attributes,x)
 	print("the total percentage: " + str(total / 10))
-
-
+"""
 """
 inverse
 k = 3 = 95.34
