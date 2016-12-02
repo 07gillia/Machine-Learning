@@ -97,24 +97,24 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
 	# define kNN object
 
-	knn = cv2.ml.KNearest_create();
+	knn = cv2.ml.KNearest_create()
 
 	# set to use BRUTE_FORCE neighbour search as KNEAREST_KDTREE seems to  break
 	# on this data set (may not for others - http://code.opencv.org/issues/2661)
 
-	knn.setAlgorithmType(cv2.ml.KNEAREST_BRUTE_FORCE);
+	knn.setAlgorithmType(cv2.ml.KNEAREST_BRUTE_FORCE)
 
 	# set default 3, can be changed at query time in predict() call
 
-	knn.setDefaultK(K);
+	knn.setDefaultK(K)
 
 	# set up classification, turning off regression
 
-	knn.setIsClassifier(True);
+	knn.setIsClassifier(True)
 
 	# perform training of k-NN
 
-	knn.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels);
+	knn.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels)
 
 	############ Perform Testing -- k-NN
 
@@ -127,7 +127,7 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 		sample = np.vstack((test_attributes[i,:], np.zeros(len(test_attributes[i,:])).astype(np.float32)))
 		# formatting before running
 
-		_, results, neigh_respones, distances = knn.findNearest(sample, k = K);
+		_, results, neigh_respones, distances = knn.findNearest(sample, k = K)
 		# run the test on the current thing
 
 		if(results[0] == test_labels[i]):
@@ -143,29 +143,29 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
 def SVM(training_labels, training_attributes, test_labels, test_attributes):
 
-	use_svm_autotrain = False;
+	use_svm_autotrain = False
 
 	############ Perform Training -- SVM
 
 	# define SVM object
 
-	svm = cv2.ml.SVM_create();
+	svm = cv2.ml.SVM_create()
 
 	# set kernel
 	# choices : # SVM_LINEAR / SVM_RBF / SVM_POLY / SVM_SIGMOID / SVM_CHI2 / SVM_INTER
 
-	svm.setKernel(cv2.ml.SVM_LINEAR);
+	svm.setKernel(cv2.ml.SVM_LINEAR)
 
 	# set parameters (some specific to certain kernels)
 
-	svm.setC(1.0); # penalty constant on margin optimization
-	svm.setType(cv2.ml.SVM_C_SVC); # multiple class (2 or more) classification
-	svm.setGamma(0.5); # used for SVM_RBF kernel only, otherwise has no effect
-	svm.setDegree(3);  # used for SVM_POLY kernel only, otherwise has no effect
+	svm.setC(1.0) # penalty constant on margin optimization
+	svm.setType(cv2.ml.SVM_C_SVC) # multiple class (2 or more) classification
+	svm.setGamma(0.5) # used for SVM_RBF kernel only, otherwise has no effect
+	svm.setDegree(3)  # used for SVM_POLY kernel only, otherwise has no effect
 
 	# set the relative weights importance of each class for use with penalty term
 
-	svm.setClassWeights(np.float32([1,1,1,1,1,1,1,1,1,1,1,1]));
+	svm.setClassWeights(np.float32([1,1,1,1,1,1,1,1,1,1,1,1]))
 
 	# define and train svm object
 
@@ -176,12 +176,12 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes):
 
 		# if it is available : see https://github.com/opencv/opencv/issues/7224
 
-		svm.trainAuto(cv2.ml.TrainData_create(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int)), kFold=10);
+		svm.trainAuto(cv2.ml.TrainData_create(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int)), kFold=10)
 	else:
 
 		# use kernel specified above with kernel parameters set previously
 
-		svm.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int));
+		svm.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels.astype(int))
 
 	############ Perform Testing -- SVM
 
@@ -196,11 +196,11 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes):
 		#  example with a second row of zeros of the same size and type which is ignored).
 
 		sample = np.vstack((test_attributes[i,:],
-		np.zeros(len(test_attributes[i,:])).astype(np.float32)));
+		np.zeros(len(test_attributes[i,:])).astype(np.float32)))
 
 		# perform SVM prediction (i.e. classification)
 
-		_, result = svm.predict(sample, cv2.ml.ROW_SAMPLE);
+		_, result = svm.predict(sample, cv2.ml.ROW_SAMPLE)
 
 		if(test_labels[i] == result[0]):
 			correct += 1
@@ -219,24 +219,24 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 
 	# define kNN object
 
-	knn = cv2.ml.KNearest_create();
+	knn = cv2.ml.KNearest_create()
 
 	# set to use BRUTE_FORCE neighbour search as KNEAREST_KDTREE seems to  break
 	# on this data set (may not for others - http://code.opencv.org/issues/2661)
 
-	knn.setAlgorithmType(cv2.ml.KNEAREST_BRUTE_FORCE);
+	knn.setAlgorithmType(cv2.ml.KNEAREST_BRUTE_FORCE)
 
 	# set default 3, can be changed at query time in predict() call
 
-	knn.setDefaultK(K);
+	knn.setDefaultK(K)
 
 	# set up classification, turning off regression
 
-	knn.setIsClassifier(True);
+	knn.setIsClassifier(True)
 
 	# perform training of k-NN
 
-	knn.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels);
+	knn.train(training_attributes, cv2.ml.ROW_SAMPLE, training_labels)
 
 	############ Perform Testing -- k-NN
 
@@ -249,7 +249,7 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 		sample = np.vstack((test_attributes[i,:], np.zeros(len(test_attributes[i,:])).astype(np.float32)))
 		# formatting before running
 
-		_, results, neigh_respones, distances = knn.findNearest(sample, k = K);
+		_, results, neigh_respones, distances = knn.findNearest(sample, k = K)
 		# run the test on the current thing
 
 		################### The weighting bit
