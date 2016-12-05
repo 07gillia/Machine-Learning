@@ -13,6 +13,9 @@ import numpy as np
 import math
 import random
 
+from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
+
 #####################################################################
 # shuffle, used to read in the data and then shuffle it to get 
 # different sets of test data vs training data
@@ -93,7 +96,7 @@ def shuffle():
 # reads in the files and splits them based on K folding
 # different sets of test data vs training data
 
-def k_folding():
+def k_folding(K, splits):
 
 	########### Define classes
 
@@ -141,41 +144,83 @@ def k_folding():
 
 	# split the data into sub sets, choose one at random, return all others as training data and the chosen as test data
 
-	K = 10
-	# the number of K folds
+	kf = KFold(n_splits=splits)
 
-	together = list(zip(labels, attributes))
-	# zip together
+	total_correct = 0
 
-	y = int(len(together) / K)
-	# find the length of each subset
+	print(K)
 
-	chunks = [together[x:x+100] for x in range(0, len(together), y)]
-	# store the chunks
+	for train, test in kf.split(attributes):
+		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
 
-	results = []
+		total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K)
 
-	for x in range(0, len(chunks)):
-		# iterate through all chunks
+	print("Average: " + str(total_correct/10))
 
-		test_list = chunks[x]
-		# store the test chunk
+#####################################################################
+# reads in the files and splits them based on K folding
+# different sets of test data vs training data
 
-		training_list = []
+def k_folding_stratified(K, splits):
 
-		for y in range(0,len(chunks)):
-			# iterate through all chunks
+	########### Define classes
 
-			if(x != y):
-				# if the chunk isnt the test chunk
+	classes = {} # define mapping of classes
+	inv_classes = {v: k for k, v in classes.items()}
 
-				training_list.append(chunks[y])
-				# add the chunk to the training list
+	########### Load Data Set
 
-		results.append([test_list,training_list])
+	path_to_data = "Dataset" 
+	# the file that the data is in
 
-	return results
-	# return a list of length k each containing a list of [test_list, training_list]
+	attribute_list = []
+	# the temp variable to store the attributes 
+	label_list = []
+	# the temp variable to store the labels
+
+	reader=csv.reader(open(os.path.join(path_to_data, "x.txt"),"rt", encoding='ascii'),delimiter=' ')
+	# read in the attributes file
+	for row in reader:
+		# attributes in columns 0-561
+		attribute_list.append(list(row[i] for i in (range(0,561))))
+		# store in the temp list
+
+	reader=csv.reader(open(os.path.join(path_to_data, "y.txt"),"rt", encoding='ascii'),delimiter=' ')
+	# read in the labels file
+	for row in reader:
+		# attributes in column 1
+		label_list.append(row[0])
+		# store in the temp list
+
+	attributes=np.array(attribute_list).astype(np.float32)
+	labels=np.array(label_list).astype(np.float32)
+	# put both in more perminant storage
+
+	###########  test output for sanity
+	"""
+	print(attributes)
+	print(len(attributes))
+	print(labels)
+	print(len(labels))
+	"""
+	#####################################################################
+
+	########### Split Dataset into test and training
+
+	# split the data into sub sets, choose one at random, return all others as training data and the chosen as test data
+
+	kf = StratifiedKFold(n_splits=splits)
+
+	total_correct = 0
+
+	print(K)
+
+	for train, test in kf.split(attributes, labels):
+		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
+
+		total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K)
+
+	print("Average: " + str(total_correct/10))
 
 #####################################################################
 
@@ -401,17 +446,13 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 #####################################################################
 
 # run the machine learning code here
+# Have implemented k-folds, and stratified k-fold
 
 # kNN
 
-results = k_folding()
-for x in range(len(results)):
-	testing_list = results[x][0]
-	training_list = results[x][1]
-
-	### this is broken !!!!!!
-
-	kNN(training_labels, training_attributes, test_labels, test_attributes,3)
+for x in range(3,16):
+	print("")
+	k_folding_stratified(x,10)
 
 """
 for x in range(3,16):
