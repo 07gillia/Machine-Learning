@@ -12,15 +12,18 @@ import os
 import numpy as np
 import math
 import random
+import matplotlib.pyplot as plt
+import itertools
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 #####################################################################
-# shuffle, used to read in the data and then shuffle it to get 
-# different sets of test data vs training data
+# read in the files as two arrays that will then need to be split into train and test
 
-def shuffle():
+def read_in_files():
 
 	########### Define classes
 
@@ -62,7 +65,14 @@ def shuffle():
 	print(labels)
 	print(len(labels))
 	"""
-	#####################################################################
+	
+	return attributes, labels
+
+#####################################################################
+# shuffle, used to read in the data and then shuffle it to get 
+# different sets of test data vs training data
+
+def shuffle(labels, attributes):
 
 	########### Zip the two lists together so as to shuffle the data whist maintaining the realationship between the lists
 
@@ -75,7 +85,11 @@ def shuffle():
 	labels, attributes = zip(*temp)
 	# unzip and restore
 
-	#####################################################################
+	return labels, attributes
+
+#####################################################################
+
+def split_30_70(labels, attributes):
 
 	########### Split Dataset into test and training
 
@@ -96,49 +110,7 @@ def shuffle():
 # reads in the files and splits them based on K folding
 # different sets of test data vs training data
 
-def k_folding(K, splits):
-
-	########### Define classes
-
-	classes = {} # define mapping of classes
-	inv_classes = {v: k for k, v in classes.items()}
-
-	########### Load Data Set
-
-	path_to_data = "Dataset" 
-	# the file that the data is in
-
-	attribute_list = []
-	# the temp variable to store the attributes 
-	label_list = []
-	# the temp variable to store the labels
-
-	reader=csv.reader(open(os.path.join(path_to_data, "x.txt"),"rt", encoding='ascii'),delimiter=' ')
-	# read in the attributes file
-	for row in reader:
-		# attributes in columns 0-561
-		attribute_list.append(list(row[i] for i in (range(0,561))))
-		# store in the temp list
-
-	reader=csv.reader(open(os.path.join(path_to_data, "y.txt"),"rt", encoding='ascii'),delimiter=' ')
-	# read in the labels file
-	for row in reader:
-		# attributes in column 1
-		label_list.append(row[0])
-		# store in the temp list
-
-	attributes=np.array(attribute_list).astype(np.float32)
-	labels=np.array(label_list).astype(np.float32)
-	# put both in more perminant storage
-
-	###########  test output for sanity
-	"""
-	print(attributes)
-	print(len(attributes))
-	print(labels)
-	print(len(labels))
-	"""
-	#####################################################################
+def k_folding(K, splits, kNN, SVM, kNN_weighted):
 
 	########### Split Dataset into test and training
 
@@ -161,49 +133,7 @@ def k_folding(K, splits):
 # reads in the files and splits them based on K folding
 # different sets of test data vs training data
 
-def k_folding_stratified(K, splits):
-
-	########### Define classes
-
-	classes = {} # define mapping of classes
-	inv_classes = {v: k for k, v in classes.items()}
-
-	########### Load Data Set
-
-	path_to_data = "Dataset" 
-	# the file that the data is in
-
-	attribute_list = []
-	# the temp variable to store the attributes 
-	label_list = []
-	# the temp variable to store the labels
-
-	reader=csv.reader(open(os.path.join(path_to_data, "x.txt"),"rt", encoding='ascii'),delimiter=' ')
-	# read in the attributes file
-	for row in reader:
-		# attributes in columns 0-561
-		attribute_list.append(list(row[i] for i in (range(0,561))))
-		# store in the temp list
-
-	reader=csv.reader(open(os.path.join(path_to_data, "y.txt"),"rt", encoding='ascii'),delimiter=' ')
-	# read in the labels file
-	for row in reader:
-		# attributes in column 1
-		label_list.append(row[0])
-		# store in the temp list
-
-	attributes=np.array(attribute_list).astype(np.float32)
-	labels=np.array(label_list).astype(np.float32)
-	# put both in more perminant storage
-
-	###########  test output for sanity
-	"""
-	print(attributes)
-	print(len(attributes))
-	print(labels)
-	print(len(labels))
-	"""
-	#####################################################################
+def k_folding_stratified(K, splits,attributes):
 
 	########### Split Dataset into test and training
 
@@ -218,9 +148,13 @@ def k_folding_stratified(K, splits):
 	for train, test in kf.split(attributes, labels):
 		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
 
-		total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K)
+		correct, predicted_labels,actual_labels = kNN(training_labels, training_attributes, test_labels, test_attributes, K)
+
+		total_correct += correct
 
 	print("Average: " + str(total_correct/10))
+
+	return actual_labels, predicted_labels
 
 #####################################################################
 
@@ -254,6 +188,9 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 	correct = 0
 	incorrect = 0
 
+	actual_labels = []
+	predicted_labels = []
+
 	for i in range(len(test_attributes)):
 		# iterate though every index of the test data
 
@@ -263,6 +200,9 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 		_, results, neigh_respones, distances = knn.findNearest(sample, k = K)
 		# run the test on the current thing
 
+		predicted_labels.append(int(results[0][0]))
+		actual_labels.append(int(test_labels[i]))
+
 		if(results[0] == test_labels[i]):
 			correct += 1
 		else:
@@ -270,7 +210,7 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
 	print("Correct: " + str(correct/len(test_attributes) * 100))
 	print("Incorrext: " + str(incorrect/len(test_attributes) * 100))
-	return (correct/len(test_attributes) * 100)
+	return (correct/len(test_attributes) * 100), predicted_labels, actual_labels
 
 #####################################################################
 
@@ -346,7 +286,7 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes):
 
 #####################################################################
 
-def kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, K):
+def kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, K, inverse_square, similarity):
 	
 	############ Perform Training -- k-NN
 
@@ -387,16 +327,9 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 
 		################### The weighting bit
 
-		# print("responses")
-		# print(neigh_respones)
-		# the first is the group that each of the neighbors thinks this should be in
-		# print("distances")
-		# print(distances)
-		# the first is the distance from each of the neighbors
-
 		# Inverse Square Distance
 
-		if(True):
+		if(inverse_square):
 
 			prediction = 0
 
@@ -415,7 +348,7 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 
 		# Similarity
 
-		if(False):
+		if(similarity):
 
 			prediction = 0
 
@@ -444,16 +377,70 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 	return (correct/len(test_attributes) * 100)
 
 #####################################################################
+# Plot the confusion matrix
+
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, round(cm[i, j],2),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+#####################################################################
+
+def plot_everything(actual_labels, predicted_labels):
+
+	# Compute confusion matrix
+	cnf_matrix = confusion_matrix(actual_labels, predicted_labels)
+	np.set_printoptions(precision=2)
+
+	class_names = ['1','2','3','4','5','6','7','8','9','10','11','12']
+
+	# Plot non-normalized confusion matrix
+	plt.figure()
+	plot_confusion_matrix(cnf_matrix, classes=class_names,
+                      	title='Confusion matrix, without normalization')
+
+	# Plot normalized confusion matrix
+	plt.figure()
+	plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+                      	title='Normalized confusion matrix')
+
+	plt.show()
+
+#####################################################################
 
 # run the machine learning code here
 # Have implemented k-folds, and stratified k-fold
 
 # kNN
-
-for x in range(3,16):
-	print("")
-	k_folding_stratified(x,10)
-
 """
 for x in range(3,16):
 	print("")
