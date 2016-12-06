@@ -214,7 +214,7 @@ def kNN(training_labels, training_attributes, test_labels, test_attributes, K):
 
 #####################################################################
 
-def SVM(training_labels, training_attributes, test_labels, test_attributes):
+def SVM(training_labels, training_attributes, test_labels, test_attributes, kernal_value, c_value, gamma_value, degree_value):
 
 	use_svm_autotrain = False
 
@@ -227,14 +227,30 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes):
 	# set kernel
 	# choices : # SVM_LINEAR / SVM_RBF / SVM_POLY / SVM_SIGMOID / SVM_CHI2 / SVM_INTER
 
-	svm.setKernel(cv2.ml.SVM_LINEAR)
+	if(kernal_value == "SVM_LINEAR"):
+		svm.setKernel(cv2.ml.SVM_LINEAR)
+	if(kernal_value == "SVM_RBF"):
+		svm.setKernel(cv2.ml.SVM_RBF)
+	if(kernal_value == "SVM_POLY"):
+		svm.setKernel(cv2.ml.SVM_POLY)
+	if(kernal_value == "SVM_SIGMOID"):
+		svm.setKernel(cv2.ml.SVM_SIGMOID)
+	if(kernal_value == "SVM_CHI2"):
+		svm.setKernel(cv2.ml.SVM_CHI2)
+	if(kernal_value == "SVM_INTER"):
+		svm.setKernel(cv2.ml.SVM_INTER)
 
 	# set parameters (some specific to certain kernels)
 
-	svm.setC(1.0) # penalty constant on margin optimization
+	if(gamma_value == 0):
+		gamma_value = 0.5
+	if(degree_value == 0):
+		degree_value = 3
+
+	svm.setC(c_value) # penalty constant on margin optimization
 	svm.setType(cv2.ml.SVM_C_SVC) # multiple class (2 or more) classification
-	svm.setGamma(0.5) # used for SVM_RBF kernel only, otherwise has no effect
-	svm.setDegree(3)  # used for SVM_POLY kernel only, otherwise has no effect
+	svm.setGamma(gamma_value) # used for SVM_RBF kernel only, otherwise has no effect
+	svm.setDegree(degree_value)  # used for SVM_POLY kernel only, otherwise has no effect
 
 	# set the relative weights importance of each class for use with penalty term
 
@@ -437,6 +453,79 @@ def plot_everything(actual_labels, predicted_labels):
 
 #####################################################################
 
+def testing():
+
+	kernal = ["SVM_LINEAR", "SVM_RBF", "SVM_POLY", "SVM_SIGMOID", "SVM_CHI2", "SVM_INTER"]
+
+	C_list = [1,10,100,1000,10000]
+
+	Gamma_list = [0.0001,0.001,0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+
+	Degree_list = [0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9]
+
+	for x in kernal:
+		# iterate through all kernals
+		for y in C_list:
+			# iterate through all c values
+			if(x == "SUM_RBF"):
+				# if a specific kernal
+				for z in Gamma_list:
+					# itersate through gamma values
+					attributes, labels = read_in_files()
+					# read in the files
+					total = 0
+					# a counter to keep track of the average percentage
+					for a in range(0,10):
+						# run the code 10 times
+						labels, attributes = shuffle(attributes,labels)
+						# shuffle the files
+						test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
+						# split the data into test and train
+						total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,z,0)
+						# run SVM with the corresponding values
+					print("SUM_RBF total: " + str(total/10))
+					# return the average
+					print("Details: " + str(y) + ", " + str(z))
+					# return the details of the run
+			elif(x == "SVM_POLY"):
+				# if a different specific kernal
+				for z in Degree_list:
+					# iterate through the degree values
+					attributes, labels = read_in_files()
+					# read in the files
+					total = 0
+					# a counter to keep track of the average percentage
+					for a in range(0,10):
+						# run the code 10 times
+						labels, attributes = shuffle(attributes,labels)
+						# shuffle the files
+						test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
+						# split the data into test and train
+						total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,0,z)
+						# run SVM with the corresponding values
+					print("SUM_POLY total: " + str(total/10))
+					# return the average
+					print("Details: " + str(y) + ", " + str(z))
+			else:
+				attributes, labels = read_in_files()
+				# read in the files
+				total = 0
+				# a counter to keep track of the average percentage
+				for a in range(0,10):
+					# run the code 10 times
+					labels, attributes = shuffle(attributes,labels)
+					# shuffle the files
+					test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
+					# split the data into test and train
+					total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,0,0)
+					# run SVM with the corresponding values
+				print(str(x) + " total: " + str(total/10))
+				# return the average
+				print("Details: " + str(x) + ", " + str(y))
+
+
+#####################################################################
+
 # run the machine learning code here
 # Have implemented k-folds, and stratified k-fold
 
@@ -528,5 +617,9 @@ setDegree = 3
 Unweighted
 SCORE = 96.09
 """
+
+#####################################################################
+
+testing()
 
 #####################################################################
