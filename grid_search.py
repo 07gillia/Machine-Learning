@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -22,18 +20,27 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.5, random_state=0)
 
 # Set the parameters by cross-validation
-tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
-                     'C': [1, 10, 100, 1000]},
-                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+tuned_parameters = [
+                    {'kernel': ['rbf'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'C': [1, 10, 100, 1000, 10000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]},
+                    {'kernel': ['poly'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'degree': [0.5, 1.0, 1,5, 2.0, 2,5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5], 'C': [1, 10, 100, 1000, 10000]},
+                    {'kernel': ['sigmoid'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'C': [1, 10, 100, 1000]}
+                    ]
 
-scores = ['precision', 'recall']
+# SVM_LINEAR / SVM_RBF / SVM_POLY / SVM_SIGMOID / SVM_CHI2 / SVM_INTER
+# svm.setC(c_value) # penalty constant on margin optimization
+# svm.setType(cv2.ml.SVM_C_SVC) # multiple class (2 or more) classification
+# svm.setGamma(gamma_value) # used for SVM_RBF kernel only, otherwise has no effect
+# svm.setDegree(degree_value)  # used for SVM_POLY kernel only, otherwise has no effect
+
+scores = ['accuracy']
 
 for score in scores:
     print("# Tuning hyper-parameters for %s" % score)
     print()
 
     clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
-                       scoring='%s_macro' % score)
+                       scoring=score)
     clf.fit(X_train, y_train)
 
     print("Best parameters set found on development set:")

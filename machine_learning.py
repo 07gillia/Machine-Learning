@@ -19,6 +19,13 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import classification_report
+from sklearn.svm import SVC
 
 #####################################################################
 # read in the files as two arrays that will then need to be split into train and test
@@ -453,76 +460,73 @@ def plot_everything(actual_labels, predicted_labels):
 
 #####################################################################
 
+def AccPreRecF1(actual_labels, predicted_labels):
+	accuracy = accuracy_score(actual_labels, predicted_labels)
+	precision = precision_score(actual_labels, predicted_labels, average='micro') 
+	recall = recall_score(actual_labels, predicted_labels, average='micro') 
+	f1 = f1_score(actual_labels, predicted_labels, average='micro') 
+	return accuracy, precision, recall, f1
+
+#####################################################################
+
 def testing():
 
-	kernal = ["SVM_LINEAR", "SVM_RBF", "SVM_POLY", "SVM_SIGMOID", "SVM_CHI2", "SVM_INTER"]
+	attributes, labels = read_in_files()
+	labels, attributes = shuffle(labels, attributes)
 
-	C_list = [1,10,100,1000,10000]
 
-	Gamma_list = [0.0001,0.001,0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+	# Split the dataset in two equal parts
+	X_train, X_test, y_train, y_test = train_test_split(
+	    attributes, labels, test_size=0.5, random_state=0)
 
-	Degree_list = [0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9]
+	# Set the parameters by cross-validation
+	tuned_parameters = [
+	                    {'kernel': ['rbf'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'C': [1, 10, 100, 1000, 10000]},
+	                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]},
+	                    {'kernel': ['poly'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'degree': [0.5, 1.0, 1,5, 2.0, 2,5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5], 'C': [1, 10, 100, 1000, 10000]},
+	                    {'kernel': ['sigmoid'], 'gamma': [1, 1e-1, 1e-2, 1e-3, 1e-4], 'C': [1, 10, 100, 1000]}
+	                    ]
 
-	for x in kernal:
-		# iterate through all kernals
-		for y in C_list:
-			# iterate through all c values
-			if(x == "SUM_RBF"):
-				# if a specific kernal
-				for z in Gamma_list:
-					# itersate through gamma values
-					attributes, labels = read_in_files()
-					# read in the files
-					total = 0
-					# a counter to keep track of the average percentage
-					for a in range(0,10):
-						# run the code 10 times
-						labels, attributes = shuffle(attributes,labels)
-						# shuffle the files
-						test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
-						# split the data into test and train
-						total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,z,0)
-						# run SVM with the corresponding values
-					print("SUM_RBF total: " + str(total/10))
-					# return the average
-					print("Details: " + str(y) + ", " + str(z))
-					# return the details of the run
-			elif(x == "SVM_POLY"):
-				# if a different specific kernal
-				for z in Degree_list:
-					# iterate through the degree values
-					attributes, labels = read_in_files()
-					# read in the files
-					total = 0
-					# a counter to keep track of the average percentage
-					for a in range(0,10):
-						# run the code 10 times
-						labels, attributes = shuffle(attributes,labels)
-						# shuffle the files
-						test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
-						# split the data into test and train
-						total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,0,z)
-						# run SVM with the corresponding values
-					print("SUM_POLY total: " + str(total/10))
-					# return the average
-					print("Details: " + str(y) + ", " + str(z))
-			else:
-				attributes, labels = read_in_files()
-				# read in the files
-				total = 0
-				# a counter to keep track of the average percentage
-				for a in range(0,10):
-					# run the code 10 times
-					labels, attributes = shuffle(attributes,labels)
-					# shuffle the files
-					test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
-					# split the data into test and train
-					total += SVM(training_labels, training_attributes, test_labels, test_attributes,x,y,0,0)
-					# run SVM with the corresponding values
-				print(str(x) + " total: " + str(total/10))
-				# return the average
-				print("Details: " + str(x) + ", " + str(y))
+	# SVM_LINEAR / SVM_RBF / SVM_POLY / SVM_SIGMOID / SVM_CHI2 / SVM_INTER
+	# svm.setC(c_value) # penalty constant on margin optimization
+	# svm.setType(cv2.ml.SVM_C_SVC) # multiple class (2 or more) classification
+	# svm.setGamma(gamma_value) # used for SVM_RBF kernel only, otherwise has no effect
+	# svm.setDegree(degree_value)  # used for SVM_POLY kernel only, otherwise has no effect
 
+	scores = ['accuracy']
+
+	for score in scores:
+	    print("# Tuning hyper-parameters for %s" % score)
+	    print()
+
+	    clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
+	                       scoring=score)
+	    clf.fit(X_train, y_train)
+
+	    print("Best parameters set found on development set:")
+	    print()
+	    print(clf.best_params_)
+	    print()
+	    print("Grid scores on development set:")
+	    print()
+	    means = clf.cv_results_['mean_test_score']
+	    stds = clf.cv_results_['std_test_score']
+	    for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+	        print("%0.3f (+/-%0.03f) for %r"
+	              % (mean, std * 2, params))
+	    print()
+
+	    print("Detailed classification report:")
+	    print()
+	    print("The model is trained on the full development set.")
+	    print("The scores are computed on the full evaluation set.")
+	    print()
+	    y_true, y_pred = y_test, clf.predict(X_test)
+	    print(classification_report(y_true, y_pred))
+	    print()
+
+	# Note the problem is too easy: the hyperparameter plateau is too flat and the
+	# output model is the same for precision and recall with ties in quality.
 
 #####################################################################
 
@@ -531,13 +535,16 @@ def testing():
 
 # kNN
 """
+attributes, labels = read_in_files()
 for x in range(3,16):
 	print("")
 	print("kNN Round " + str(x))
 	total = 0
 	for y in range(0,10):
-		test_labels, test_attributes, training_labels, training_attributes = shuffle()
-		total += kNN(training_labels, training_attributes, test_labels, test_attributes,x)
+		labels, attributes = shuffle(labels, attributes)
+		test_labels, test_attributes, training_labels, training_attributes = split_30_70(labels, attributes)
+		to_add, _ , _ = kNN(training_labels, training_attributes, test_labels, test_attributes,x)
+		total += to_add
 	print("the total percentage: " + str(total / 10))
 """
 """ MAY NEED TO RE-TEST!!!!!!!!!!!
