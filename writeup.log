@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.6)  6 DEC 2016 14:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.6)  8 DEC 2016 18:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -801,41 +801,34 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 
 LaTeX Warning: No \author given.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 97.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 102.
 [1
 
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 97.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 102.
 
 (./writeup.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 97.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 97.
-
-
-Package rerunfilecheck Warning: File `writeup.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `writeup.out':
-(rerunfilecheck)             Before: A99D3653A77A3C5473D9EE9E6FD092F2;391
-(rerunfilecheck)             After:  20C8B8112F0EB2F3FF63E94A20E8DFEA;799.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 97.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 102.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 102.
+Package rerunfilecheck Info: File `writeup.out' has not changed.
+(rerunfilecheck)             Checksum: 0DD2F12D80577A00FBF149F5E9D9B9FC;845.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 102.
  ) 
 Here is how much of TeX's memory you used:
- 11348 strings out of 493014
- 180567 string characters out of 6133351
- 380512 words of memory out of 5000000
- 14640 multiletter control sequences out of 15000+600000
+ 11356 strings out of 493014
+ 180683 string characters out of 6133351
+ 380518 words of memory out of 5000000
+ 14647 multiletter control sequences out of 15000+600000
  71681 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,10n,51p,8510b,350s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,10n,51p,8510b,352s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2016/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb>
-Output written on writeup.pdf (1 page, 19709 bytes).
+Output written on writeup.pdf (1 page, 20261 bytes).
 PDF statistics:
- 48 PDF objects out of 1000 (max. 8388607)
- 43 compressed objects within 1 object stream
- 13 named destinations out of 1000 (max. 500000)
- 35881 words of extra memory for PDF output out of 42996 (max. 10000000)
+ 70 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
+ 14 named destinations out of 1000 (max. 500000)
+ 35937 words of extra memory for PDF output out of 42996 (max. 10000000)
 
