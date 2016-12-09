@@ -104,6 +104,25 @@ def split_30_70(labels, attributes):
 
 #####################################################################
 
+def split_20_80(labels, attributes):
+
+	########### Split Dataset into test and training
+
+	N = int(len(labels) * 0.2)
+	# spilt the data into 20% 
+
+	test_labels = np.array(labels[:N]).astype(np.float32)
+	test_attributes = np.array(attributes[:N]).astype(np.float32)
+	# take the first 20% and use it for testing
+
+	training_labels = np.array(labels[N:]).astype(np.float32)
+	training_attributes = np.array(attributes[N:]).astype(np.float32)
+	# take the last 80% and use it for training
+
+	return test_labels, test_attributes, training_labels, training_attributes
+
+#####################################################################
+
 def split_10_90(labels, attributes):
 
 	########### Split Dataset into test and training

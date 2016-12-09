@@ -198,7 +198,12 @@ def k_folding(K, splits, kNN, SVM, kNN_weighted):
 	for train, test in kf.split(attributes):
 		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
 
-		total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K)
+		if(kNN):
+			total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K) # change for the best 
+		if(SVM):
+			total_correct += SVM(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
+		if(kNN_weighted):
+			total_correct += kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 3, True, False) # change for the best
 
 	print("Average: " + str(total_correct/10))
 
@@ -206,7 +211,7 @@ def k_folding(K, splits, kNN, SVM, kNN_weighted):
 # reads in the files and splits them based on K folding
 # different sets of test data vs training data
 
-def k_folding_stratified(K, splits,attributes):
+def k_folding_stratified(K, splits, attributes, kNN, SVM, kNN_weighted):
 
 	########### Split Dataset into test and training
 
@@ -221,13 +226,79 @@ def k_folding_stratified(K, splits,attributes):
 	for train, test in kf.split(attributes, labels):
 		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
 
-		correct, predicted_labels,actual_labels = kNN(training_labels, training_attributes, test_labels, test_attributes, K)
+		if(kNN):
+			correct, predicted_labels,actual_labels = kNN(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
+		if(SVM):
+			correct = SVM(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
+		if(kNN_weighted):
+			correct = kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 3, True, False) # change for best values
 
 		total_correct += correct
 
 	print("Average: " + str(total_correct/10))
 
 	return actual_labels, predicted_labels
+
+#####################################################################
+##### grid search
+
+def all_gird_search():
+
+	grid_search()
+
+	print("-----")
+	print("kNN")
+
+	for x in range(1,100):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+			# with different test values
+			to_add, _, _ = kNN.kNN(training_labels, training_attributes, test_labels, test_attributes,x)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN Weighted Inverse")
+
+	for x in range(1,100):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, True, False)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN Weighted Similarity")
+
+	for x in range(1,100):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
 
 #####################################################################
 
@@ -261,62 +332,8 @@ AccPreRecF1(actual_labels, predicted_labels)
 
 plot_everything(actual_labels, predicted_labels)
 
-##### grid search
+##### other searching
 
-grid_search()
 
-print("-----")
-print("kNN")
-
-for x in range(1,100):
-	# iterate through a lot of values of K
-	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
-		# with different test values
-		to_add, _, _ = kNN.kNN(training_labels, training_attributes, test_labels, test_attributes,x)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
-
-print("-----")
-print("kNN Weighted Inverse")
-
-for x in range(1,100):
-	# iterate through a lot of values of K
-	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
-		# with different test values
-		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, True, False)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
-
-print("-----")
-print("kNN Weighted Similarity")
-
-for x in range(1,100):
-	# iterate through a lot of values of K
-	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
-		# with different test values
-		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
 
 #####################################################################

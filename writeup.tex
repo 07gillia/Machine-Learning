@@ -59,39 +59,46 @@
 
 \subsection{kNN and Variations}
 
-Talk about kNN and all of the variations on it
+K nearest neighbours was implemented and tested first. The benefits of kNN is that is is very fast to train only needing the time taken to plot all train data. The disadvantages of kNN is the slow query time, this is due to slow look up in high dimensional space. There is only a single value that can be changed in basic kNN to alter its behaviour, the number of neighbours that are used, k. There are a few more advancements on kNN based around the weighting of the neighbours. The weighting cane be done based on the inverse square of the distance between the query and its neighbour or the similarity between the query and its neighbour, both of which have been implemented.
 
 \subsection{SVM}
 
-Talk about SVM
+Support Vector Machines are based around the idea of a linear separator, that any two classes can be split by a line, and to find the best line there should be a maximum separating margin. The implementation of this approach has a significant number of variables, kernel, degree, C, gamma and the class weighting.
 
 \subsection{Experimental Procedure}
 
-talk about all of the things I have done to test the implementations
+- k-fold
+- k-fold stratified
+- Different ratio of test:train
 
 \section{Evidence of the performance of your chosen approaches on the data}
 
 \subsection{Results for each one}
 
-Big table here
+results of k 1 - 100 and all weightings of them
+
+results of the best SVM and a couple around it
 
 \subsection{Accuracy, Precision, Recall and F-Measure}
 
 another big table here
+show these for all the best ones of each approach
 
 \subsection{Confusion Matrix}
 
 lots of confusion matrices 
 
+only the best ones
+
 \section{Conclusions from the experimentation}
 
 \subsection{Results}
 
-
+talk about what was best and any limitations of any approach
 
 \subsection{Ethics}
 
-
+why is having this data an issue?
 
 \section{References}
 
