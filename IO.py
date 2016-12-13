@@ -151,3 +151,23 @@ def read_in_everything():
 	return test_labels, test_attributes, training_labels, training_attributes
 
 #####################################################################
+
+def read_in_everything_20():
+	# this will call other funcitons in the file and has been tested and will use the best split (found experimentally)
+	attributes, labels = read_in_files()
+	labels, attributes = shuffle(labels, attributes)
+	test_labels, test_attributes, training_labels, training_attributes = split_20_80(labels,attributes)
+
+	return test_labels, test_attributes, training_labels, training_attributes
+
+#####################################################################
+
+def read_in_everything_10():
+	# this will call other funcitons in the file and has been tested and will use the best split (found experimentally)
+	attributes, labels = read_in_files()
+	labels, attributes = shuffle(labels, attributes)
+	test_labels, test_attributes, training_labels, training_attributes = split_10_90(labels,attributes)
+
+	return test_labels, test_attributes, training_labels, training_attributes
+
+#####################################################################

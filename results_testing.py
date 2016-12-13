@@ -305,7 +305,7 @@ def all_gird_search():
 # Run Code Here
 
 # runs all the best values and shows their stuff, confusion matrix and accuracy and stuff
-
+'''
 test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
 
 ##### kNN Results
@@ -331,9 +331,61 @@ _, predicted_labels, actual_labels = SVM.SVM(training_labels, training_attribute
 AccPreRecF1(actual_labels, predicted_labels)
 
 plot_everything(actual_labels, predicted_labels)
-
+'''
 ##### other searching
 
+print("-----")
+print("kNN Weighted Similarity")
 
+for x in range(1,100):
+	# iterate through a lot of values of K
+	print("-----")
+	print("value of k: " + str(x))
+	total = 0
+	for y in range(0,10):
+		# do each one 10 times
+		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+		# with different test values
+		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+		# accumulate the percentage of each
+		total += to_add
+	print("the total percentage: " + str(total / 10))
+	# get the average
+
+print("-----")
+print("kNN 80:20")
+
+for x in range(1,100):
+	# iterate through a lot of values of K
+	print("-----")
+	print("value of k: " + str(x))
+	total = 0
+	for y in range(0,10):
+		# do each one 10 times
+		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_20()
+		# with different test values
+		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+		# accumulate the percentage of each
+		total += to_add
+	print("the total percentage: " + str(total / 10))
+	# get the average
+
+print("-----")
+print("kNN 90:10")
+
+for x in range(1,100):
+	# iterate through a lot of values of K
+	print("-----")
+	print("value of k: " + str(x))
+	total = 0
+	for y in range(0,10):
+		# do each one 10 times
+		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+		# with different test values
+		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+		# accumulate the percentage of each
+		total += to_add
+	print("the total percentage: " + str(total / 10))
+	# get the average
 
 #####################################################################

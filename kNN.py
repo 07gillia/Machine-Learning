@@ -163,10 +163,13 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 				current_similarity = 1 - distances[0][x]
 				# work out the similarity of the nearest neighbour
 
-				weighted_labels[neigh_respones[0][x] - 1] += current_similarity
+				index = int(neigh_respones[0][x] - 1)
+				# get the index of the class that the current nearest neighbour thinks is correct 
+
+				weighted_labels[index] += current_similarity
 				# increment the index of the class that the current neighbiour thinks is correct
 
-			prediction = np.argmax(weighted_labels, axis=0) + 1
+			prediction = np.argmin(weighted_labels, axis=0) + 1
 			# get the overall prediction
 
 		################### End of the weighting bit
