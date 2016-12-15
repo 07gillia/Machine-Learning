@@ -104,9 +104,14 @@ def SVM(training_labels, training_attributes, test_labels, test_attributes, kern
 # Run Code Here
 
 # this will run to show the best results for each of the functions
+"""
+total = 0
+for x in range(0,10):
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
 
-test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+	toadd , _ , _ = SVM.SVM(training_labels, training_attributes, test_labels, test_attributes, "SVM_RBF", 100, 0.01, 0)
 
-SVM(training_labels, training_attributes, test_labels, test_attributes, "SVM_LINEAR", 1, 0, 0)
-
+	total += toadd
+print(str(total/10))
+"""
 #####################################################################

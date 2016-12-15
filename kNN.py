@@ -195,11 +195,41 @@ def kNN_weighted(training_labels, training_attributes, test_labels, test_attribu
 # Run Code Here
 
 # this will run to show the best results for each of the functions
+"""
+print("-----")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, _, _ = kNN(training_labels, training_attributes, test_labels, test_attributes, 1)
+	# accumulate the percentage of each
+	total += to_add
+print("the total percentage: " + str(total / 10))
+# get the average
 
-test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+print("-----")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, _, _ = kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 8, True, False)
+	# accumulate the percentage of each
+	total += to_add
+print("the total percentage: " + str(total / 10))
+# get the average
 
-kNN(training_labels, training_attributes, test_labels, test_attributes, 3)
-
-kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 3, True, False)
-
+print("-----")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, _, _ = kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 1, False, True)
+	# accumulate the percentage of each
+	total += to_add
+print("the total percentage: " + str(total / 10))
+# get the average
+"""
 #####################################################################

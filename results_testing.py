@@ -180,66 +180,6 @@ def grid_search():
 	# output model is the same for precision and recall with ties in quality.
 
 #####################################################################
-# reads in the files and splits them based on K folding
-# different sets of test data vs training data
-
-def k_folding(K, splits, kNN, SVM, kNN_weighted):
-
-	########### Split Dataset into test and training
-
-	# split the data into sub sets, choose one at random, return all others as training data and the chosen as test data
-
-	kf = KFold(n_splits=splits)
-
-	total_correct = 0
-
-	print(K)
-
-	for train, test in kf.split(attributes):
-		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
-
-		if(kNN):
-			total_correct += kNN(training_labels, training_attributes, test_labels, test_attributes, K) # change for the best 
-		if(SVM):
-			total_correct += SVM(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
-		if(kNN_weighted):
-			total_correct += kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 3, True, False) # change for the best
-
-	print("Average: " + str(total_correct/10))
-
-#####################################################################
-# reads in the files and splits them based on K folding
-# different sets of test data vs training data
-
-def k_folding_stratified(K, splits, attributes, kNN, SVM, kNN_weighted):
-
-	########### Split Dataset into test and training
-
-	# split the data into sub sets, choose one at random, return all others as training data and the chosen as test data
-
-	kf = StratifiedKFold(n_splits=splits)
-
-	total_correct = 0
-
-	print(K)
-
-	for train, test in kf.split(attributes, labels):
-		training_attributes, test_attributes, training_labels, test_labels = attributes[train], attributes[test], labels[train], labels[test]
-
-		if(kNN):
-			correct, predicted_labels,actual_labels = kNN(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
-		if(SVM):
-			correct = SVM(training_labels, training_attributes, test_labels, test_attributes, K) # CHANGE FOR BEST VALUE
-		if(kNN_weighted):
-			correct = kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 3, True, False) # change for best values
-
-		total_correct += correct
-
-	print("Average: " + str(total_correct/10))
-
-	return actual_labels, predicted_labels
-
-#####################################################################
 ##### grid search
 
 def all_gird_search():
@@ -247,7 +187,7 @@ def all_gird_search():
 	grid_search()
 
 	print("-----")
-	print("kNN")
+	print("kNN 70:30")
 
 	for x in range(1,100):
 		# iterate through a lot of values of K
@@ -283,6 +223,42 @@ def all_gird_search():
 		# get the average
 
 	print("-----")
+	print("kNN Weighted Inverse 80:20")
+
+	for x in range(1,11):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_20()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, True, False)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN Weighted Inverse 90:10")
+
+	for x in range(1,11):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, True, False)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
 	print("kNN Weighted Similarity")
 
 	for x in range(1,100):
@@ -295,6 +271,78 @@ def all_gird_search():
 			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
 			# with different test values
 			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN Weighted Similarity 80:20")
+
+	for x in range(1,11):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_20()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN Weighted Similarity 90:10")
+
+	for x in range(1,11):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+			# with different test values
+			to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN 80:20")
+
+	for x in range(1,100):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_20()
+			# with different test values
+			to_add, _, _ = kNN.kNN(training_labels, training_attributes, test_labels, test_attributes, x)
+			# accumulate the percentage of each
+			total += to_add
+		print("the total percentage: " + str(total / 10))
+		# get the average
+
+	print("-----")
+	print("kNN 90:10")
+
+	for x in range(1,100):
+		# iterate through a lot of values of K
+		print("-----")
+		print("value of k: " + str(x))
+		total = 0
+		for y in range(0,10):
+			# do each one 10 times
+			test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+			# with different test values
+			to_add, _, _ = kNN.kNN(training_labels, training_attributes, test_labels, test_attributes, x)
 			# accumulate the percentage of each
 			total += to_add
 		print("the total percentage: " + str(total / 10))
@@ -333,59 +381,67 @@ AccPreRecF1(actual_labels, predicted_labels)
 plot_everything(actual_labels, predicted_labels)
 '''
 ##### other searching
+"""
+print("-----")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, predicted_labels, actual_labels = kNN.kNN(training_labels, training_attributes, test_labels, test_attributes, 1)
+	# accumulate the percentage of each
+	total += to_add
+
+	AccPreRecF1(actual_labels, predicted_labels)
+	print("-----")
+
+print("the total percentage: " + str(total / 10))
+# get the average
 
 print("-----")
-print("kNN Weighted Similarity")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, predicted_labels, actual_labels = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 8, True, False)
+	# accumulate the percentage of each
+	total += to_add
 
-for x in range(1,100):
-	# iterate through a lot of values of K
-	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
-		# with different test values
-		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
+	AccPreRecF1(actual_labels, predicted_labels)
+
+print("the total percentage: " + str(total / 10))
+# get the average
 
 print("-----")
-print("kNN 80:20")
+total = 0
+for y in range(0,10):
+	# do each one 10 times
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
+	# with different test values
+	to_add, predicted_labels, actual_labels = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, 1, False, True)
+	# accumulate the percentage of each
+	total += to_add
 
-for x in range(1,100):
-	# iterate through a lot of values of K
+	AccPreRecF1(actual_labels, predicted_labels)
 	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_20()
-		# with different test values
-		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
 
+print("the total percentage: " + str(total / 10))
+# get the average
+"""
 print("-----")
-print("kNN 90:10")
 
-for x in range(1,100):
-	# iterate through a lot of values of K
+total = 0
+for x in range(0,10):
+	test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything()
+
+	toadd , actual_labels , predicted_labels = SVM.SVM(training_labels, training_attributes, test_labels, test_attributes, "SVM_RBF", 100, 0.01, 0)
+
+	total += toadd
+
+	AccPreRecF1(actual_labels, predicted_labels)
 	print("-----")
-	print("value of k: " + str(x))
-	total = 0
-	for y in range(0,10):
-		# do each one 10 times
-		test_labels, test_attributes, training_labels, training_attributes = IO.read_in_everything_10()
-		# with different test values
-		to_add, _, _ = kNN.kNN_weighted(training_labels, training_attributes, test_labels, test_attributes, x, False, True)
-		# accumulate the percentage of each
-		total += to_add
-	print("the total percentage: " + str(total / 10))
-	# get the average
+
+print(str(total/10))
 
 #####################################################################
